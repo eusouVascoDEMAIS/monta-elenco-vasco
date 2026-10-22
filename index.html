@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monta o Elenco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* Layout: black header with the white diagonal sash, pitch left, signing desk right */
+:root {
+  --ink: #0b0c0d;
+  --panel: #15171a;
+  --line: #2a2d32;
+  --paper: #f4f4f2;
+  --muted: #9aa0a8;
+  --cross: #d52b1e;
+  --grass: #0f3d24;
+  --grass-2: #124a2b;
+  --gold: #e8c766;
+  --sell: #6fd39b;
+  --loan: #7fb2ff;
+  --display: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --card: clamp(46px, 6.4vw, 66px);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--ink); color: var(--paper); font: 15px/1.45 var(--body); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+header.top {
+  position: relative; overflow: hidden;
+  background: #000; border-bottom: 1px solid var(--line);
+  padding: 22px 16px 18px;
+}
+header.top::before {
+  content: ""; position: absolute; inset: -40% auto -40% 56%; width: 110px;
+  background: var(--paper); transform: rotate(32deg); opacity: .95;
+}
+.top-in { position: relative; max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.cross { width: 38px; height: 38px; flex: none; }
+h1 { margin: 0; font: 900 clamp(30px, 5vw, 46px)/0.95 var(--display); letter-spacing: .01em; text-transform: uppercase; }
+h1 em { font-style: normal; color: var(--cross); }
+.tag { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 9px 14px; font-weight: 600; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.btn.danger:hover { border-color: var(--cross); color: #ff8a80; }
+
+main { max-width: 1240px; margin: 0 auto; padding-block: 20px 48px; padding-inline: 16px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+/* Export frame: everything inside #quadro goes into the PNG */
+#quadro { background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 12px; min-width: 0; }
+.q-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; }
+#nomeTime { background: transparent; border: 0; border-bottom: 1px dashed var(--line); font: 900 26px/1.3 var(--display); text-transform: uppercase; letter-spacing: .02em; width: min(100%, 320px); padding: 4px 0; }
+#nomeTime:focus { outline: none; border-bottom-color: var(--gold); }
+.form-pick { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+#formacao { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-weight: 700; letter-spacing: 0; }
+
+.pitch {
+  position: relative; width: min(100%, calc((100vh - 200px) * .68)); margin-inline: auto; aspect-ratio: 68 / 100; max-width: 100%;
+  border-radius: 8px; overflow: hidden;
+  background-color: var(--grass);
+  background-image: linear-gradient(180deg, var(--grass) 0%, var(--grass) 10%, var(--grass-2) 10%, var(--grass-2) 20%, var(--grass) 20%, var(--grass) 30%, var(--grass-2) 30%, var(--grass-2) 40%, var(--grass) 40%, var(--grass) 50%, var(--grass-2) 50%, var(--grass-2) 60%, var(--grass) 60%, var(--grass) 70%, var(--grass-2) 70%, var(--grass-2) 80%, var(--grass) 80%, var(--grass) 90%, var(--grass-2) 90%, var(--grass-2) 100%); /* explicit stops: html2canvas skips repeating gradients */
+}
+.pitch svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pos { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 3px; width: calc(var(--card) * 1.75); }
+.tit { background: none; border: 0; padding: 0; display: grid; justify-items: center; gap: 2px; width: 100%; }
+.foto {
+  width: var(--card); height: var(--card); border-radius: 50%; overflow: hidden;
+  background: rgba(0,0,0,.45); border: 2px dashed rgba(255,255,255,.35);
+  display: grid; place-items: center; font-size: 22px; color: rgba(255,255,255,.7);
+}
+.foto img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.tit.on .foto { border: 2px solid var(--paper); background: #ddd; }
+.tit.sel .foto, .res.sel { box-shadow: 0 0 0 3px var(--gold); }
+.lbl { font: 700 11px/1 var(--body); letter-spacing: .06em; color: rgba(255,255,255,.6); }
+.nome { max-width: 100%; font-weight: 700; font-size: 13px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 3px; }
+.val { font-size: 11px; color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 600; }
+.res {
+  display: flex; align-items: center; gap: 4px; max-width: 100%;
+  background: rgba(0,0,0,.55); border: 1px dashed rgba(255,255,255,.3); border-radius: 999px;
+  padding: 2px 8px 2px 2px; font-size: 11px; color: rgba(255,255,255,.75);
+}
+.res.on { border-style: solid; border-color: rgba(255,255,255,.5); color: var(--paper); }
+.res .mini { width: 18px; height: 18px; border-radius: 50%; overflow: hidden; flex: none; background: rgba(255,255,255,.15); display: grid; place-items: center; font-size: 11px; }
+.res .mini img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.res span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 520px) { .val { display: none; } .nome { font-size: 11px; } .res { font-size: 10px; } }
+
+.totais { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+@media (max-width: 520px) { .totais { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tot { background: var(--panel); padding: 8px 10px; min-width: 0; }
+.tot b { display: block; font: 900 22px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.tot small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+.tot.big b { color: var(--gold); }
+.fonte { color: var(--muted); font-size: 11px; text-align: right; }
+
+/* Signing desk */
+aside { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; min-width: 0; position: sticky; top: 12px; }
+@media (max-width: 900px) { aside { position: static; } }
+.desk-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.desk-h h2 { margin: 0; font: 900 28px/1 var(--display); text-transform: uppercase; }
+.desk-h h2 span { color: var(--muted); font-weight: 700; }
+.tabs { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.tabs button { border: 0; background: transparent; padding: 6px 14px; font-weight: 600; color: var(--muted); }
+.tabs button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
+.atual { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+.atual .ph { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: none; background: #ddd; }
+.atual .ph img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.atual .info { flex: 1; min-width: 0; }
+.atual .info b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atual .info small { color: var(--muted); }
+#busca { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: 16px; }
+#busca:focus { outline: none; border-color: var(--gold); }
+.lista { display: grid; gap: 6px; max-height: 62vh; overflow-y: auto; }
+.jog { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.jog:hover { border-color: var(--muted); }
+.jog .ph { width: 48px; height: 48px; border-radius: 6px; overflow: hidden; background: #ddd; }
+.jog .ph img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.jog .info { min-width: 0; }
+.jog .info b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jog .meta { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; min-width: 0; }
+.jog .meta img { width: 16px; height: 16px; object-fit: contain; flex: none; }
+.jog .meta span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: var(--line); color: var(--paper); flex: none; }
+.jog .preco { text-align: right; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.jog.usado { opacity: .45; }
+.vazio { color: var(--muted); padding: 18px 4px; text-align: center; }
+.vazio strong { color: var(--paper); }
+
+/* Market tabs under the pitch */
+.mercado { display: grid; gap: 10px; }
+.m-tabs { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--line); }
+.m-tabs button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px; font-weight: 700; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.m-tabs button[aria-selected="true"] { color: var(--paper); border-bottom-color: var(--c); }
+.m-tabs b { font-variant-numeric: tabular-nums; color: var(--c); margin-left: 4px; }
+.m-grupo { display: grid; gap: 8px; }
+.m-grupo h3 { display: none; margin: 4px 0 0; font: 900 18px/1 var(--display); text-transform: uppercase; color: var(--c); }
+.m-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.m-card { display: flex; align-items: center; gap: 8px; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+.m-card .mini { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; flex: none; background: #ddd; }
+.m-card .mini img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.m-card .info { flex: 1; min-width: 0; line-height: 1.2; }
+.m-card .info b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-card .info small { color: var(--muted); font-size: 11px; }
+.m-card .info small em { font-style: normal; color: var(--c); font-weight: 600; }
+.m-card .x { background: none; border: 0; color: var(--muted); padding: 2px 4px; font-size: 16px; line-height: 1; }
+.m-card .x:hover { color: #ff8a80; }
+.m-add { border: 1px dashed var(--line); background: none; border-radius: 6px; padding: 12px 8px; color: var(--muted); font-weight: 600; }
+.m-add:hover { border-color: var(--c); color: var(--paper); }
+[data-aba="reforcos"] { --c: var(--gold); }
+[data-aba="venda"] { --c: var(--sell); }
+[data-aba="dispensa"] { --c: #ff8a80; }
+[data-aba="emprestimo"] { --c: var(--loan); }
+.export .m-tabs, .export .m-add, .export .m-card .x { display: none; }
+.export .m-grupo h3 { display: block; }
+.m-nada { display: none; color: var(--muted); font-size: 12px; }
+.export .m-nada { display: block; }
+.export #mPainel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+
+#toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--paper); color: var(--ink); padding: 10px 16px; border-radius: 6px; font-weight: 600; max-width: calc(100% - 32px); }
+@media (prefers-reduced-motion: no-preference) { .foto, .res { transition: box-shadow .15s; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg class="cross" viewBox="0 0 40 40" aria-hidden="true"><path fill="#d52b1e" d="M20 20 13 3h14zM20 20l17-7v14zM20 20l7 17H13zM20 20 3 27V13z"/></svg>
+      <div>
+        <h1>Monta o <em>Elenco</em></h1>
+        <p class="tag">Contrate qualquer jogador do mundo. 11 titulares, 11 reservas.</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn danger" id="limpar" type="button">Limpar elenco</button>
+      <button class="btn primary" id="compartilhar" type="button">Compartilhar imagem</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="quadro" aria-label="Escalação">
+    <div class="q-head">
+      <input id="nomeTime" maxlength="32" aria-label="Nome do time" value="Vasco 2027">
+      <label class="form-pick">Formação
+        <select id="formacao"></select>
+      </label>
+    </div>
+    <div class="pitch" id="campo">
+      <svg class="lines" viewBox="0 0 68 100" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="rgba(255,255,255,.28)" stroke-width=".35">
+          <rect x="2" y="2" width="64" height="96"/>
+          <line x1="2" y1="50" x2="66" y2="50"/>
+          <circle cx="34" cy="50" r="8.5"/>
+          <rect x="14" y="2" width="40" height="15"/><rect x="24.5" y="2" width="19" height="5.5"/>
+          <rect x="14" y="83" width="40" height="15"/><rect x="24.5" y="92.5" width="19" height="5.5"/>
+        </g>
+      </svg>
+    </div>
+    <div class="totais">
+      <div class="tot big"><b id="tTotal">€ 0</b><small>Investimento total</small></div>
+      <div class="tot"><b id="tTit">€ 0</b><small>Titulares</small></div>
+      <div class="tot"><b id="tRes">€ 0</b><small>Reservas</small></div>
+      <div class="tot"><b id="tRef">€ 0</b><small>Outros reforços</small></div>
+      <div class="tot"><b id="tVenda">€ 0</b><small>Receita com vendas</small></div>
+      <div class="tot"><b id="tIdade">–</b><small>Idade média titulares</small></div>
+    </div>
+    <div class="mercado">
+      <div class="m-tabs" id="mTabs" role="tablist"></div>
+      <div id="mPainel"></div>
+    </div>
+    <div class="fonte">Valores de mercado: Transfermarkt · <span id="nContr">0</span>/22 contratados</div>
+  </section>
+
+  <aside id="mesa" aria-label="Contratações"></aside>
+</main>
+
+<div id="toast" role="status" hidden></div>
+
+<script>
+// [label, x%, y%] per slot; slot 0 is always the keeper, indexes stay stable across formations
+const DEF4 = [['LD', 86, 72], ['ZAG', 62, 76], ['ZAG', 38, 76], ['LE', 14, 72]];
+const DEF3 = [['ZAG', 74, 75], ['ZAG', 50, 77], ['ZAG', 26, 75]];
+const GOL = [['GOL', 50, 91]];
+const FORM = {
+  '4-3-3':   [...GOL, ...DEF4, ['MC', 72, 50], ['VOL', 50, 56], ['MC', 28, 50], ['PD', 80, 23], ['CA', 50, 16], ['PE', 20, 23]],
+  '4-4-2':   [...GOL, ...DEF4, ['MD', 84, 47], ['MC', 61, 51], ['MC', 39, 51], ['ME', 16, 47], ['CA', 64, 18], ['CA', 36, 18]],
+  '4-2-3-1': [...GOL, ...DEF4, ['VOL', 64, 57], ['VOL', 36, 57], ['PD', 82, 35], ['MEI', 50, 37], ['PE', 18, 35], ['CA', 50, 15]],
+  '4-1-4-1': [...GOL, ...DEF4, ['VOL', 50, 58], ['MD', 84, 38], ['MC', 62, 42], ['MC', 38, 42], ['ME', 16, 38], ['CA', 50, 15]],
+  '3-5-2':   [...GOL, ...DEF3, ['ALA', 88, 47], ['MC', 67, 52], ['VOL', 50, 58], ['MC', 33, 52], ['ALA', 12, 47], ['CA', 64, 18], ['CA', 36, 18]],
+  '3-4-3':   [...GOL, ...DEF3, ['ALA', 86, 49], ['MC', 61, 53], ['MC', 39, 53], ['ALA', 14, 49], ['PD', 80, 23], ['CA', 50, 16], ['PE', 20, 23]],
+  '5-3-2':   [...GOL, ['ALA', 89, 64], ['ZAG', 69, 76], ['ZAG', 50, 78], ['ZAG', 31, 76], ['ALA', 11, 64], ['MC', 72, 48], ['VOL', 50, 53], ['MC', 28, 48], ['CA', 64, 18], ['CA', 36, 18]],
+};
+const KEY = 'monta-elenco-v1';
+const CLUBE_VASCO = 'CR Vasco da Gama';
+
+let st = { nome: 'Vasco 2027', formacao: '4-3-3', slots: Array.from({ length: 11 }, () => ({ t: null, r: null })) };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.slots?.length === 11 && FORM[s.formacao]) st = s; } catch {}
+const ABAS = { reforcos: 'Outros reforços', venda: 'Venda', dispensa: 'Dispensa', emprestimo: 'Empréstimo' };
+st.listas = Object.assign(Object.fromEntries(Object.keys(ABAS).map(k => [k, []])), st.listas);
+let sel = { i: 0, papel: 't' }; // or { lista: key } when the desk is filling a market tab
+let aba = 'reforcos', elencoVasco = null;
+let resultados = [], buscaTimer, buscaCtrl;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const salvar = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} };
+
+function euro(v) {
+  if (!v) return '€ 0';
+  const f = (n, d) => n.toLocaleString('pt-BR', { maximumFractionDigits: d });
+  if (v >= 1e9) return `€ ${f(v / 1e9, 2)} bi`;
+  if (v >= 1e6) return `€ ${f(v / 1e6, 1)} mi`;
+  return `€ ${f(v / 1e3, 0)} mil`;
+}
+const curto = n => n.length <= 13 ? n : n.split(' ').slice(-1)[0];
+const img = (src, alt = '') => src ? `<img src="${esc(src)}" alt="${esc(alt)}" crossorigin="anonymous">` : '';
+
+function renderCampo() {
+  const campo = $('campo');
+  campo.querySelectorAll('.pos').forEach(n => n.remove());
+  FORM[st.formacao].forEach(([lbl, x, y], i) => {
+    const { t, r } = st.slots[i];
+    const d = document.createElement('div');
+    d.className = 'pos';
+    d.style.left = x + '%';
+    d.style.top = y + '%';
+    const isT = sel.i === i && sel.papel === 't', isR = sel.i === i && sel.papel === 'r';
+    d.innerHTML = `
+      <button type="button" class="tit ${t ? 'on' : ''} ${isT ? 'sel' : ''}" data-i="${i}" data-p="t" aria-label="${lbl} titular${t ? ': ' + esc(t.nome) : ''}">
+        <span class="foto">${t ? img(t.foto, t.nome) : '+'}</span>
+        ${t ? `<span class="nome">${esc(curto(t.nome))}</span><span class="val">${euro(t.valor)}</span>` : `<span class="lbl">${lbl}</span>`}
+      </button>
+      <button type="button" class="res ${r ? 'on' : ''} ${isR ? 'sel' : ''}" data-i="${i}" data-p="r" aria-label="${lbl} reserva${r ? ': ' + esc(r.nome) : ''}">
+        <span class="mini">${r ? img(r.foto, r.nome) : '+'}</span><span>${r ? esc(curto(r.nome)) : 'Reserva'}</span>
+      </button>`;
+    campo.appendChild(d);
+  });
+}
+
+function renderTotais() {
+  const tits = st.slots.map(s => s.t).filter(Boolean), ress = st.slots.map(s => s.r).filter(Boolean);
+  const soma = a => a.reduce((n, p) => n + (p.valor || 0), 0);
+  // players already at Vasco cost nothing to sign
+  const custo = a => soma(a.filter(p => p.clube !== CLUBE_VASCO));
+  $('tTit').textContent = euro(custo(tits));
+  $('tRes').textContent = euro(custo(ress));
+  $('tRef').textContent = euro(custo(st.listas.reforcos));
+  $('tVenda').textContent = euro(soma(st.listas.venda));
+  $('tTotal').textContent = euro(custo(tits) + custo(ress) + custo(st.listas.reforcos));
+  const idades = tits.map(p => p.idade).filter(Boolean);
+  $('tIdade').textContent = idades.length ? (idades.reduce((a, b) => a + b, 0) / idades.length).toFixed(1).replace('.', ',') : '–';
+  $('nContr').textContent = tits.length + ress.length;
+}
+
+function onde(id) {
+  for (let i = 0; i < 11; i++) for (const p of ['t', 'r'])
+    if (st.slots[i][p]?.id === id) return { i, p, txt: `${FORM[st.formacao][i][0]} ${p === 't' ? 'titular' : 'reserva'}` };
+  for (const k in ABAS) if (st.listas[k].some(x => x.id === id)) return { lista: k, txt: ABAS[k].toLowerCase() };
+  return null;
+}
+
+const cardM = (k, p) => `<div class="m-card"><span class="mini">${img(p.foto, p.nome)}</span>
+  <span class="info"><b>${esc(p.nome)}</b><small>${esc(p.pos || '?')} · <em>${p.valor ? euro(p.valor) : '–'}</em></small></span>
+  <button type="button" class="x" data-rm="${k}" data-id="${esc(p.id)}" aria-label="Remover ${esc(p.nome)}">×</button></div>`;
+const grupoM = k => `<div class="m-grupo" data-aba="${k}"><h3>${ABAS[k]}</h3><div class="m-grid">
+  ${st.listas[k].map(p => cardM(k, p)).join('') || '<span class="m-nada">Nenhum jogador</span>'}<button type="button" class="m-add" data-add="${k}">+ Adicionar</button></div></div>`;
+
+function renderMercado() {
+  $('mTabs').innerHTML = Object.entries(ABAS).map(([k, n]) =>
+    `<button type="button" role="tab" data-aba="${k}" data-tab="${k}" aria-selected="${k === aba}">${n}<b>${st.listas[k].length}</b></button>`).join('');
+  $('mPainel').innerHTML = grupoM(aba);
+}
+
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+function filtrarElenco() {
+  if (!sel.lista || sel.lista === 'reforcos' || !elencoVasco) return;
+  const q = norm($('busca').value.trim());
+  resultados = elencoVasco.filter(p => norm(p.nome).includes(q));
+  renderLista();
+}
+async function carregarElenco() {
+  if (!elencoVasco) {
+    renderLista('Carregando elenco do Vasco…');
+    try {
+      const d = await fetch('/api/elenco-vasco').then(r => r.json());
+      if (d.erro) throw new Error(d.erro);
+      elencoVasco = d;
+    } catch (e) {
+      renderLista('Não deu para carregar o elenco do Vasco (' + esc(e.message) + '). Confira se o server.js está rodando.');
+      return;
+    }
+  }
+  filtrarElenco();
+}
+
+function renderMesa() {
+  if (sel.lista) {
+    const k = sel.lista, saida = k !== 'reforcos';
+    const q = $('busca')?.value || '';
+    $('mesa').innerHTML = `
+      <div class="desk-h" data-aba="${k}"><h2>${ABAS[k]} <span>· ${saida ? 'elenco atual do Vasco' : 'qualquer jogador'}</span></h2></div>
+      <input id="busca" type="search" autocomplete="off" placeholder="${saida ? 'Filtrar elenco do Vasco' : 'Buscar jogador (ex.: Vegetti, Coutinho, Endrick)'}" value="${esc(q)}">
+      <div class="lista" id="lista"></div>`;
+    if (saida) carregarElenco(); else renderLista();
+    return;
+  }
+  const lbl = FORM[st.formacao][sel.i][0];
+  const atual = st.slots[sel.i][sel.papel];
+  const q = $('busca')?.value || '';
+  $('mesa').innerHTML = `
+    <div class="desk-h">
+      <h2>${lbl} <span>· ${sel.papel === 't' ? 'Titular' : 'Reserva'}</span></h2>
+      <div class="tabs">
+        <button type="button" data-papel="t" aria-pressed="${sel.papel === 't'}">Titular</button>
+        <button type="button" data-papel="r" aria-pressed="${sel.papel === 'r'}">Reserva</button>
+      </div>
+    </div>
+    ${atual ? `<div class="atual"><span class="ph">${img(atual.foto, atual.nome)}</span>
+      <div class="info"><b>${esc(atual.nome)}</b><small>${esc(atual.clube)} · ${euro(atual.valor)}</small></div>
+      <button type="button" class="btn danger" id="dispensar">Dispensar</button></div>` : ''}
+    <input id="busca" type="search" autocomplete="off" placeholder="Buscar jogador (ex.: Vegetti, Coutinho, Endrick)" value="${esc(q)}">
+    <div class="lista" id="lista"></div>`;
+  renderLista();
+}
+
+function renderLista(msg) {
+  const el = $('lista');
+  if (msg) { el.innerHTML = `<p class="vazio">${msg}</p>`; return; }
+  if (!resultados.length) {
+    const digitou = $('busca').value.trim().length >= 2;
+    if (sel.lista && sel.lista !== 'reforcos') { el.innerHTML = `<p class="vazio">Nenhum jogador do elenco com esse nome.</p>`; return; }
+    if (sel.lista) { el.innerHTML = `<p class="vazio">${digitou ? 'Nenhum jogador encontrado.' : 'Busque <strong>qualquer jogador</strong> para a lista de outros reforços.<br>Eles somam no investimento, mas não entram no campo.'}</p>`; return; }
+    el.innerHTML = `<p class="vazio">${digitou ? 'Nenhum jogador encontrado.' : 'Digite o nome de <strong>qualquer jogador</strong>, de qualquer campeonato.<br>Clique numa posição do campo para escolher onde ele entra.'}</p>`;
+    return;
+  }
+  el.innerHTML = resultados.map((p, k) => {
+    const usado = onde(p.id);
+    return `<button type="button" class="jog ${usado ? 'usado' : ''}" data-k="${k}">
+      <span class="ph">${img(p.foto, p.nome)}</span>
+      <span class="info"><b>${esc(p.nome)}</b>
+        <span class="meta"><span class="chip">${esc(p.pos || '?')}</span>${p.escudo ? img(p.escudo) : ''}<span>${esc(p.clube)}${p.idade ? ' · ' + p.idade + ' anos' : ''}${p.nac.length ? ' · ' + esc(p.nac[0]) : ''}</span></span>
+      </span>
+      <span class="preco">${p.valor ? euro(p.valor) : '–'}</span>
+    </button>`;
+  }).join('');
+}
+
+async function buscar(q) {
+  buscaCtrl?.abort();
+  if (q.length < 2) { resultados = []; renderLista(); return; }
+  buscaCtrl = new AbortController();
+  renderLista('Buscando no Transfermarkt…');
+  try {
+    const r = await fetch('/api/busca?q=' + encodeURIComponent(q), { signal: buscaCtrl.signal });
+    const d = await r.json();
+    if (d.erro) throw new Error(d.erro);
+    resultados = d;
+    renderLista();
+  } catch (e) {
+    if (e.name !== 'AbortError') { resultados = []; renderLista('Não deu para buscar agora (' + esc(e.message) + '). Confira se o server.js está rodando e tente de novo.'); }
+  }
+}
+
+function toast(t) {
+  const el = $('toast');
+  el.textContent = t;
+  el.hidden = false;
+  clearTimeout(toast.h);
+  toast.h = setTimeout(() => el.hidden = true, 2400);
+}
+
+function tudo() { renderCampo(); renderTotais(); renderMercado(); renderMesa(); salvar(); }
+
+function irPara(novo) {
+  if (novo.lista !== sel.lista) { resultados = []; if ($('busca')) $('busca').value = ''; }
+  sel = novo;
+  renderCampo(); renderMesa();
+  $('busca').focus({ preventScroll: true });
+  if (matchMedia('(max-width: 900px)').matches) $('mesa').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function proximoVazio() {
+  for (const p of [sel.papel, sel.papel === 't' ? 'r' : 't'])
+    for (let k = 1; k <= 11; k++) { const i = (sel.i + k) % 11; if (!st.slots[i][p]) return { i, papel: p }; }
+  return sel;
+}
+
+// events
+$('formacao').innerHTML = Object.keys(FORM).map(f => `<option${f === st.formacao ? ' selected' : ''}>${f}</option>`).join('');
+$('formacao').onchange = e => { st.formacao = e.target.value; tudo(); };
+$('nomeTime').value = st.nome;
+$('nomeTime').oninput = e => { st.nome = e.target.value; salvar(); };
+
+$('campo').onclick = e => {
+  const b = e.target.closest('[data-i]');
+  if (!b) return;
+  irPara({ i: +b.dataset.i, papel: b.dataset.p });
+};
+
+$('mTabs').onclick = e => {
+  const t = e.target.closest('[data-tab]');
+  if (!t) return;
+  aba = t.dataset.tab;
+  renderMercado();
+  irPara({ lista: aba });
+};
+$('mPainel').onclick = e => {
+  const add = e.target.closest('[data-add]'), rm = e.target.closest('[data-rm]');
+  if (add) irPara({ lista: add.dataset.add });
+  if (rm) { st.listas[rm.dataset.rm] = st.listas[rm.dataset.rm].filter(p => p.id !== rm.dataset.id); tudo(); }
+};
+
+$('mesa').addEventListener('click', e => {
+  const tab = e.target.closest('[data-papel]');
+  if (tab) { sel.papel = tab.dataset.papel; renderCampo(); renderMesa(); return; }
+  if (e.target.id === 'dispensar') { st.slots[sel.i][sel.papel] = null; tudo(); return; }
+  const j = e.target.closest('.jog');
+  if (!j) return;
+  const p = resultados[+j.dataset.k], ja = onde(p.id);
+  if (sel.lista) {
+    if (ja) { toast(`${p.nome} já está em: ${ja.txt}.`); return; }
+    st.listas[sel.lista].push(p);
+    aba = sel.lista;
+    toast(`${p.nome} → ${ABAS[sel.lista]}`);
+    if (sel.lista === 'reforcos') { resultados = []; $('busca').value = ''; }
+    tudo();
+    return;
+  }
+  if (ja && !(ja.i === sel.i && ja.p === sel.papel)) {
+    toast(`${p.nome} já está em: ${ja.txt}.`);
+    return;
+  }
+  st.slots[sel.i][sel.papel] = p;
+  toast(`${p.nome} contratado! ${p.valor ? euro(p.valor) : ''}`);
+  sel = proximoVazio();
+  resultados = [];
+  tudo();
+  $('busca').value = '';
+  renderLista();
+});
+
+$('mesa').addEventListener('input', e => {
+  if (e.target.id !== 'busca') return;
+  if (sel.lista && sel.lista !== 'reforcos') return filtrarElenco();
+  clearTimeout(buscaTimer);
+  buscaTimer = setTimeout(() => buscar(e.target.value.trim()), 350);
+});
+
+let limparArmado = false;
+$('limpar').onclick = e => {
+  if (!limparArmado) { limparArmado = true; e.target.textContent = 'Confirmar limpeza'; setTimeout(() => { limparArmado = false; e.target.textContent = 'Limpar elenco'; }, 3000); return; }
+  limparArmado = false; e.target.textContent = 'Limpar elenco';
+  st.slots = Array.from({ length: 11 }, () => ({ t: null, r: null }));
+  st.listas = Object.fromEntries(Object.keys(ABAS).map(k => [k, []]));
+  sel = { i: 0, papel: 't' };
+  tudo();
+};
+
+$('compartilhar').onclick = async () => {
+  const b = $('compartilhar');
+  b.disabled = true; b.textContent = 'Gerando…';
+  try {
+    // image shows all four market lists; render them live so html2canvas sees loaded photos
+    $('quadro').classList.add('export');
+    $('mPainel').innerHTML = Object.keys(ABAS).map(grupoM).join('');
+    await Promise.all([...$('quadro').querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    const canvas = await html2canvas($('quadro'), {
+      useCORS: true, backgroundColor: '#0b0c0d', scale: 2,
+      // html2canvas clips <input> text, so export the team name as plain text
+      onclone: doc => {
+        const i = doc.getElementById('nomeTime'), t = doc.createElement('div');
+        t.textContent = i.value;
+        t.style.cssText = 'font: 900 26px/1.3 var(--display); text-transform: uppercase; letter-spacing: .02em';
+        i.replaceWith(t);
+      },
+    });
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const nome = (st.nome || 'elenco').replace(/[^\w-]+/g, '-') + '.png';
+    const file = new File([blob], nome, { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: st.nome }).catch(() => {});
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = nome;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      toast('Imagem baixada: ' + nome);
+    }
+  } catch (e) {
+    toast('Não deu para gerar a imagem: ' + e.message);
+  } finally {
+    $('quadro').classList.remove('export');
+    renderMercado();
+    b.disabled = false; b.textContent = 'Compartilhar imagem';
+  }
+};
+
+tudo();
+</script>
+</body>
+</html>
