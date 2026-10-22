@@ -86,10 +86,11 @@ let sofaP;
 function sofaPage() {
   return sofaP ??= (async () => {
     const { chromium } = require('playwright'); // lazy: the Transfermarkt part runs without it
-    const b = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
+    // full Chromium (new headless) looks more like a real browser than the default headless shell
+    const b = await chromium.launch({ channel: 'chromium', args: ['--disable-dev-shm-usage'] });
     b.on('disconnected', () => { sofaP = null; });
     const p = await b.newPage();
-    await p.goto(SOFA + '/robots.txt');
+    p.base = (await p.goto(SOFA + '/robots.txt')).status();
     return p;
   })().catch(e => { sofaP = null; throw e; });
 }
@@ -133,7 +134,7 @@ const server = http.createServer(async (req, res) => {
       if (!cache.has(path)) {
         const r = await sofa(path);
         if (r.s === 404) return json(res, null);
-        if (!r.j) throw new Error('Sofascore respondeu ' + r.s);
+        if (!r.j) throw new Error(`Sofascore respondeu ${r.s} (página base ${(await sofaPage()).base})`);
         cache.set(path, r.j);
       }
       return json(res, cache.get(path));
