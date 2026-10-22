@@ -3,3 +3,6 @@ services:
     name: monta-elenco-vasco
     runtime: docker
     plan: free
+    envVars:
+      - key: SOFA_PROXY
+        sync: false

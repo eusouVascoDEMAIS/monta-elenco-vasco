@@ -19,7 +19,9 @@ Repositório: https://github.com/eusouVascoDEMAIS/monta-elenco-vasco
 1. O repositório precisa ter `server.js`, `index.html`, `package.json`, `Dockerfile`, `render.yaml` e `.gitignore`.
 2. Em render.com, escolha **New → Blueprint** (link direto: `dashboard.render.com/select-repo?type=blueprint`) e aponte para o repositório. O `render.yaml` define um serviço web free com `runtime: docker`. O `Dockerfile` parte da imagem oficial do Playwright (já traz o Chromium e as bibliotecas de sistema) e define `HOST=0.0.0.0`. A porta vem do `PORT` que o Render injeta.
 3. O link fica `https://monta-elenco-vasco.onrender.com` (ou parecido). No plano free o serviço dorme após 15 min sem acesso e o primeiro acesso depois disso leva uns 30 a 50 s.
-4. A versão do `playwright` no `package.json` (1.61.1) precisa ser a mesma da tag da imagem no `Dockerfile` (`v1.61.1-noble`). Se mudar uma, mude a outra.
+4. Para o Scout funcionar hospedado, preencha `SOFA_PROXY` em **Environment** no Render (veja "IP de datacenter" abaixo).
+5. O deploy automático a cada commit não disparou neste serviço. Depois de um commit, use **Manual Deploy → Deploy latest commit**.
+6. A versão do `playwright` no `package.json` (1.61.1) precisa ser a mesma da tag da imagem no `Dockerfile` (`v1.61.1-noble`). Se mudar uma, mude a outra.
 
 Cada amigo tem o próprio elenco, salvo no `localStorage` do navegador dele. Nada é compartilhado entre usuários.
 
@@ -46,10 +48,11 @@ Cada amigo tem o próprio elenco, salvo no `localStorage` do navegador dele. Nad
 
 ### Proxy do Sofascore (`server.js`)
 - O Sofascore devolve 403 para o `fetch` do Node e para o `curl`, mesmo com cabeçalhos de navegador, porque identifica o cliente pela assinatura TLS. Chamadas de outro site no navegador também levam 403. Só passa quem está na própria origem `www.sofascore.com`.
-- Por isso o servidor abre um Chromium headless (Playwright) uma vez, deixa uma aba parada em `www.sofascore.com/robots.txt` e faz cada chamada com `fetch` dentro dessa aba (`sofa()`). Fica rápido porque a página não carrega o site inteiro.
+- Por isso o servidor abre um Chromium headless (Playwright, `channel: 'chromium'`, o Chromium completo em vez do headless shell) uma vez, deixa uma aba parada em `www.sofascore.com/robots.txt` e faz cada chamada com `fetch` dentro dessa aba (`sofa()`). Fica rápido porque a página não carrega o site inteiro.
 - `sofaPage()` guarda a promessa da aba, então chamadas simultâneas reaproveitam o mesmo navegador. Se o Chromium cair, o evento `disconnected` zera a promessa e o próximo pedido abre outro.
 - `SOFA_OK` é uma lista branca do que pode ser repassado: busca (`search/all`), dados do jogador (`player/{id}`), atributos (`attribute-overviews`), lista de temporadas (`statistics/seasons`) e estatísticas de uma temporada (`unique-tournament/{t}/season/{s}/statistics/overall`). Qualquer outro caminho volta 400.
 - 404 do Sofascore (ex.: jogador sem atributos) vira `null` com status 200, para a página tratar como "sem dados". As respostas usam o mesmo cache em memória da busca.
+- **IP de datacenter**: no Render, a página base abre (200), mas a API responde 403, porque o Sofascore bloqueia IPs de datacenter na API. A solução é um proxy residencial. Com a variável de ambiente `SOFA_PROXY=http://usuario:senha@host:porta`, o Chromium sai por esse proxy. Sem ela, conecta direto, o que funciona em casa. No Render, a variável fica em **Environment** (o `render.yaml` a declara com `sync: false`, ou seja, o valor é preenchido no painel e não vai para o repositório).
 - As fotos do Sofascore (`img.sofascore.com`) não carregam em `<img>` de outro site. Por isso as fotos continuam vindo do Transfermarkt.
 
 ### Página (`index.html`)
@@ -70,6 +73,7 @@ Cada amigo tem o próprio elenco, salvo no `localStorage` do navegador dele. Nad
   - No clone da exportação, o `<input>` do nome vira um `<div>`, porque ele corta o texto de inputs.
   - As quatro listas do mercado são montadas na página real (classe `.export`, que esconde abas, "+ Adicionar" e o × e mostra títulos e `.m-nada`), e a captura só começa depois que todas as fotos carregam. Montar só no clone deixava as fotos em branco, porque o html2canvas não espera imagens novas do clone. No final volta a aparecer só a aba ativa.
 - "Limpar elenco" pede um segundo clique em até 3 s para confirmar. Ele limpa o campo e também as quatro listas.
+- O favicon é a cruz do cabeçalho, embutida como SVG em data URI no `<link rel="icon">`.
 - Os botões **Elenco** e **Comparar** abaixo do cabeçalho trocam a tela (`verTela()`). A regra `[hidden] { display: none !important }` é necessária porque o `display: grid` do `main` venceria o atributo `hidden`.
 
 ### Scout (`index.html`)

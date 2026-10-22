@@ -87,7 +87,10 @@ function sofaPage() {
   return sofaP ??= (async () => {
     const { chromium } = require('playwright'); // lazy: the Transfermarkt part runs without it
     // full Chromium (new headless) looks more like a real browser than the default headless shell
-    const b = await chromium.launch({ channel: 'chromium', args: ['--disable-dev-shm-usage'] });
+    // Sofascore's API 403s datacenter IPs: when hosted, SOFA_PROXY=http://user:pass@host:port routes it through a residential proxy
+    const px = process.env.SOFA_PROXY && new URL(process.env.SOFA_PROXY);
+    const proxy = px ? { server: `${px.protocol}//${px.host}`, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password) } : undefined;
+    const b = await chromium.launch({ channel: 'chromium', args: ['--disable-dev-shm-usage'], proxy });
     b.on('disconnected', () => { sofaP = null; });
     const p = await b.newPage();
     p.base = (await p.goto(SOFA + '/robots.txt')).status();
