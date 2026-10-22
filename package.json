@@ -2,5 +2,6 @@
   "name": "monta-elenco-vasco",
   "private": true,
   "scripts": { "start": "node server.js" },
-  "engines": { "node": ">=18" }
+  "engines": { "node": ">=18" },
+  "dependencies": { "playwright": "1.61.1" }
 }

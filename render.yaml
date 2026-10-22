@@ -1,10 +1,5 @@
 services:
   - type: web
     name: monta-elenco-vasco
-    runtime: node
+    runtime: docker
     plan: free
-    buildCommand: "true"
-    startCommand: node server.js
-    envVars:
-      - key: HOST
-        value: 0.0.0.0

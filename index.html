@@ -27,6 +27,7 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body { background: var(--ink); color: var(--paper); font: 15px/1.45 var(--body); }
 button, input, select { font: inherit; color: inherit; }
@@ -167,6 +168,65 @@ aside { background: var(--panel); border: 1px solid var(--line); border-radius: 
 .export .m-nada { display: block; }
 .export #mPainel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
 
+/* Views: squad builder vs. player comparison */
+.views { max-width: 1240px; margin: 0 auto; padding: 14px 16px 0; display: flex; gap: 4px; }
+.views button { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 16px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.views button[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* Scout (Sofascore) */
+.f-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.f-top .ph { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; flex: none; background: #ddd; }
+.f-top .ph img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.f-top .info { flex: 1; min-width: 0; }
+.f-top .info b { display: block; font: 900 22px/1.1 var(--display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.f-top .info small { color: var(--muted); }
+.f-sel { display: grid; gap: 3px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; min-width: 0; }
+.f-sel select { background: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; font-size: 14px; text-transform: none; letter-spacing: 0; color: var(--paper); width: 100%; }
+.f-h { margin: 6px 0 0; font: 900 18px/1 var(--display); text-transform: uppercase; color: var(--muted); }
+.atr { display: grid; grid-template-columns: 96px minmax(0, 1fr) 28px; gap: 6px 10px; align-items: center; font-size: 13px; }
+.atr .bar { position: relative; height: 10px; background: var(--line); border-radius: 5px; }
+.atr .bar i { position: absolute; inset: 0 auto 0 0; background: var(--gold); border-radius: 5px; }
+.atr .bar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--paper); }
+.atr b { text-align: right; font-variant-numeric: tabular-nums; }
+.nota { color: var(--muted); font-size: 12px; margin: 0; }
+.st-tab { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.st-tab th { text-align: right; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: 4px 6px; }
+.st-tab td { padding: 5px 6px; border-top: 1px solid var(--line); text-align: right; }
+.st-tab td:first-child, .st-tab th:first-child { text-align: left; }
+.btn.mini-b { padding: 6px 10px; font-size: 13px; }
+#scoutDlg { width: min(560px, calc(100% - 24px)); max-height: calc(100% - 24px); background: var(--panel); color: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+#scoutDlg::backdrop { background: rgba(0,0,0,.7); }
+.dlg { display: grid; gap: 12px; }
+.dlg-acoes { display: flex; gap: 8px; justify-content: flex-end; }
+.m-card .info { display: block; background: none; border: 0; padding: 0; text-align: left; }
+.m-card .info:hover b { text-decoration: underline; }
+
+/* Compare */
+.cmp { max-width: 1240px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 16px; }
+.cmp-lados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 700px) { .cmp-lados { grid-template-columns: 1fr; } }
+.lado { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--c); border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.lado[data-lado="A"], .c-bar.a { --c: var(--gold); }
+.lado[data-lado="B"], .c-bar.b { --c: var(--loan); }
+.lado h2 { margin: 0; font: 900 20px/1 var(--display); text-transform: uppercase; color: var(--c); }
+.lado input[type="search"] { width: 100%; background: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 16px; }
+.lado .lista { max-height: 40vh; }
+.cmp-op { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cmp-op label { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; }
+#cmpTabela { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; display: grid; }
+.c-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) minmax(90px, 160px) minmax(0, 1fr) 52px; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; font-size: 14px; }
+.c-row:first-child { border-top: 0; }
+.c-sec { padding: 12px 0 4px; font: 900 16px/1 var(--display); text-transform: uppercase; color: var(--muted); text-align: center; }
+.c-lbl { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.2; }
+.c-v { color: var(--muted); }
+.c-v:last-child { text-align: right; }
+.c-v.win { color: var(--paper); font-weight: 700; }
+.c-bar { height: 8px; background: var(--line); border-radius: 4px; display: flex; }
+.c-bar.a { justify-content: flex-end; }
+.c-bar i { display: block; background: var(--c); border-radius: 4px; opacity: .45; }
+.c-bar.ganha i { opacity: 1; }
+@media (max-width: 520px) { .c-row { grid-template-columns: 44px minmax(0, 1fr) 84px minmax(0, 1fr) 44px; gap: 6px; font-size: 13px; } }
+
 #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--paper); color: var(--ink); padding: 10px 16px; border-radius: 6px; font-weight: 600; max-width: calc(100% - 32px); }
 @media (prefers-reduced-motion: no-preference) { .foto, .res { transition: box-shadow .15s; } }
 </style>
@@ -189,7 +249,12 @@ aside { background: var(--panel); border: 1px solid var(--line); border-radius: 
   </div>
 </header>
 
-<main>
+<nav class="views" id="views" aria-label="Telas">
+  <button type="button" data-view="elenco" aria-pressed="true">Elenco</button>
+  <button type="button" data-view="comparar" aria-pressed="false">Comparar</button>
+</nav>
+
+<main id="vElenco">
   <section id="quadro" aria-label="Escalação">
     <div class="q-head">
       <input id="nomeTime" maxlength="32" aria-label="Nome do time" value="Vasco 2027">
@@ -220,11 +285,22 @@ aside { background: var(--panel); border: 1px solid var(--line); border-radius: 
       <div class="m-tabs" id="mTabs" role="tablist"></div>
       <div id="mPainel"></div>
     </div>
-    <div class="fonte">Valores de mercado: Transfermarkt · <span id="nContr">0</span>/22 contratados</div>
+    <div class="fonte">Valores de mercado: Transfermarkt · Scout: Sofascore · <span id="nContr">0</span>/22 contratados</div>
   </section>
 
   <aside id="mesa" aria-label="Contratações"></aside>
 </main>
+
+<section class="cmp" id="vComparar" hidden aria-label="Comparar jogadores">
+  <div class="cmp-lados"><div class="lado" data-lado="A"></div><div class="lado" data-lado="B"></div></div>
+  <div class="cmp-op">
+    <label><input type="checkbox" id="p90"> Estatísticas por 90 minutos</label>
+    <span class="nota">Scout: Sofascore · cada jogador na competição escolhida</span>
+  </div>
+  <div id="cmpTabela"></div>
+</section>
+
+<dialog id="scoutDlg" aria-label="Scout do jogador"></dialog>
 
 <div id="toast" role="status" hidden></div>
 
@@ -312,7 +388,7 @@ function onde(id) {
 }
 
 const cardM = (k, p) => `<div class="m-card"><span class="mini">${img(p.foto, p.nome)}</span>
-  <span class="info"><b>${esc(p.nome)}</b><small>${esc(p.pos || '?')} · <em>${p.valor ? euro(p.valor) : '–'}</em></small></span>
+  <button type="button" class="info" data-scout="${k}" data-id="${esc(p.id)}" aria-label="Scout de ${esc(p.nome)}"><b>${esc(p.nome)}</b><small>${esc(p.pos || '?')} · <em>${p.valor ? euro(p.valor) : '–'}</em></small></button>
   <button type="button" class="x" data-rm="${k}" data-id="${esc(p.id)}" aria-label="Remover ${esc(p.nome)}">×</button></div>`;
 const grupoM = k => `<div class="m-grupo" data-aba="${k}"><h3>${ABAS[k]}</h3><div class="m-grid">
   ${st.listas[k].map(p => cardM(k, p)).join('') || '<span class="m-nada">Nenhum jogador</span>'}<button type="button" class="m-add" data-add="${k}">+ Adicionar</button></div></div>`;
@@ -369,7 +445,8 @@ function renderMesa() {
     </div>
     ${atual ? `<div class="atual"><span class="ph">${img(atual.foto, atual.nome)}</span>
       <div class="info"><b>${esc(atual.nome)}</b><small>${esc(atual.clube)} · ${euro(atual.valor)}</small></div>
-      <button type="button" class="btn danger" id="dispensar">Dispensar</button></div>` : ''}
+      <button type="button" class="btn mini-b" id="verScout">Scout</button>
+      <button type="button" class="btn danger mini-b" id="dispensar">Dispensar</button></div>` : ''}
     <input id="busca" type="search" autocomplete="off" placeholder="Buscar jogador (ex.: Vegetti, Coutinho, Endrick)" value="${esc(q)}">
     <div class="lista" id="lista"></div>`;
   renderLista();
@@ -457,8 +534,9 @@ $('mTabs').onclick = e => {
   irPara({ lista: aba });
 };
 $('mPainel').onclick = e => {
-  const add = e.target.closest('[data-add]'), rm = e.target.closest('[data-rm]');
+  const add = e.target.closest('[data-add]'), rm = e.target.closest('[data-rm]'), sc = e.target.closest('[data-scout]');
   if (add) irPara({ lista: add.dataset.add });
+  if (sc) abrirScout(st.listas[sc.dataset.scout].find(p => p.id === sc.dataset.id));
   if (rm) { st.listas[rm.dataset.rm] = st.listas[rm.dataset.rm].filter(p => p.id !== rm.dataset.id); tudo(); }
 };
 
@@ -466,6 +544,7 @@ $('mesa').addEventListener('click', e => {
   const tab = e.target.closest('[data-papel]');
   if (tab) { sel.papel = tab.dataset.papel; renderCampo(); renderMesa(); return; }
   if (e.target.id === 'dispensar') { st.slots[sel.i][sel.papel] = null; tudo(); return; }
+  if (e.target.id === 'verScout') { abrirScout(st.slots[sel.i][sel.papel]); return; }
   const j = e.target.closest('.jog');
   if (!j) return;
   const p = resultados[+j.dataset.k], ja = onde(p.id);
@@ -547,6 +626,233 @@ $('compartilhar').onclick = async () => {
     b.disabled = false; b.textContent = 'Compartilhar imagem';
   }
 };
+
+// ---- Scout (Sofascore via /api/sofa) ----
+const ATR = { attacking: 'Ataque', technical: 'Técnica', tactical: 'Tática', defending: 'Defesa', creativity: 'Criatividade', saves: 'Defesas', anticipation: 'Antecipação', ballDistribution: 'Distribuição', aerial: 'Jogo aéreo' };
+// [key, label, counts per 90?, lower is better?, format, 1 = keepers only / -1 = outfield only]
+const STATS = [
+  ['rating', 'Nota média', 0, 0, 'n2'], ['appearances', 'Jogos'], ['matchesStarted', 'Como titular'], ['minutesPlayed', 'Minutos'],
+  ['goals', 'Gols', 1, 0, '', -1], ['expectedGoals', 'Gols esperados (xG)', 1, 0, 'n2', -1], ['assists', 'Assistências', 1, 0, '', -1], ['expectedAssists', 'Assist. esperadas (xA)', 1, 0, 'n2', -1],
+  ['keyPasses', 'Passes decisivos', 1, 0, '', -1], ['bigChancesCreated', 'Grandes chances criadas', 1, 0, '', -1], ['totalShots', 'Finalizações', 1, 0, '', -1], ['shotsOnTarget', 'Finalizações no alvo', 1, 0, '', -1],
+  ['successfulDribbles', 'Dribles certos', 1, 0, '', -1], ['accuratePassesPercentage', 'Passes certos', 0, 0, 'pct'], ['accurateLongBalls', 'Bolas longas certas', 1], ['accurateCrosses', 'Cruzamentos certos', 1, 0, '', -1],
+  ['tackles', 'Desarmes', 1], ['interceptions', 'Interceptações', 1], ['clearances', 'Cortes', 1], ['ballRecovery', 'Bolas recuperadas', 1],
+  ['totalDuelsWonPercentage', 'Duelos ganhos', 0, 0, 'pct'], ['aerialDuelsWon', 'Duelos aéreos ganhos', 1], ['possessionLost', 'Perdas de posse', 1, 1], ['yellowCards', 'Cartões amarelos', 0, 1], ['redCards', 'Cartões vermelhos', 0, 1],
+  ['saves', 'Defesas feitas', 1, 0, '', 1], ['cleanSheet', 'Jogos sem sofrer gol', 0, 0, '', 1], ['goalsConceded', 'Gols sofridos', 1, 1, '', 1], ['penaltySave', 'Pênaltis defendidos', 0, 0, '', 1],
+];
+
+async function api(url) {
+  const d = await fetch(url).then(r => r.json());
+  if (d?.erro) throw new Error(d.erro);
+  return d;
+}
+async function buscaSofa(q) {
+  const d = await api('/api/sofa/search/all?q=' + encodeURIComponent(q) + '&page=0');
+  return (d?.results || []).filter(x => x.type === 'player' && x.entity.team?.sport?.slug === 'football').map(x => x.entity);
+}
+// Transfermarkt player -> Sofascore candidates, the one at the same club first
+async function candidatos(p) {
+  let c = await buscaSofa(p.nome);
+  if (!c.length && p.nome.includes(' ')) c = await buscaSofa(p.nome.split(' ').slice(-1)[0]);
+  const clube = norm(p.clube || '');
+  const bate = e => norm(e.team?.name || '').split(/\W+/).some(w => w.length > 2 && clube.includes(w)) ? 1 : 0;
+  return c.sort((a, b) => bate(b) - bate(a));
+}
+const anoTemp = y => y.includes('/') ? 2000 + parseInt(y) : parseInt(y) || 0; // "26/27" starts in 2026
+const statsDe = (id, t) => api(`/api/sofa/player/${id}/unique-tournament/${t.tid}/season/${t.sid}/statistics/overall`).then(d => d?.statistics || null);
+
+// A "ficha" is everything the scout and compare views show for one player
+async function carregarFicha(p, id) {
+  const f = { p };
+  try {
+    f.cands = await candidatos(p);
+    f.id = id || p.sofa || f.cands[0]?.id;
+    if (!f.id) throw new Error('Jogador não encontrado no Sofascore.');
+    if (!f.cands.some(c => c.id === f.id)) f.cands.unshift({ id: f.id, name: p.nome, team: null });
+    const [a, s, j] = await Promise.all([api(`/api/sofa/player/${f.id}/attribute-overviews`), api(`/api/sofa/player/${f.id}/statistics/seasons`), api(`/api/sofa/player/${f.id}`)]);
+    f.atr = a?.playerAttributeOverviews?.find(x => x.yearShift === 0);
+    f.media = a?.averageAttributeOverviews?.[0];
+    f.temporadas = (s?.uniqueTournamentSeasons || [])
+      .flatMap(t => t.seasons.map(se => ({ tid: t.uniqueTournament.id, sid: se.id, ano: anoTemp(se.year), nome: `${t.uniqueTournament.name} ${se.year}` })))
+      .sort((a, b) => b.ano - a.ano);
+    // default to the latest season of the current club's league, not a cup
+    const time = j?.player?.team, ligas = [time?.primaryUniqueTournament?.id, time?.tournament?.uniqueTournament?.id];
+    f.t = Math.max(0, ...ligas.map(l => f.temporadas.findIndex(t => t.tid === l)).filter(i => i >= 0).slice(0, 1));
+    f.stats = f.temporadas.length ? await statsDe(f.id, f.temporadas[f.t]) : null;
+  } catch (e) { f.erro = e.message; }
+  return f;
+}
+async function mudarFicha(f, campo, v, redesenhar) {
+  if (campo === 'id') {
+    f.p.sofa = +v; salvar(); // remember the manual pick
+    f.carregando = true; redesenhar();
+    Object.assign(f, await carregarFicha(f.p, +v), { carregando: false });
+  } else {
+    f.t = +v; f.stats = undefined; redesenhar();
+    f.stats = await statsDe(f.id, f.temporadas[f.t]).catch(() => null);
+  }
+  redesenhar();
+}
+
+const goleiro = f => f.atr?.position === 'G' || f.p.pos === 'GOL';
+const mostra = (s, algumGol, soGol) => s[5] === 1 ? algumGol : s[5] === -1 ? !soGol : true;
+function fmt(v, tipo) {
+  if (v == null) return '–';
+  if (tipo === 'pct') return Math.round(v) + '%';
+  return Number.isInteger(v) ? v.toLocaleString('pt-BR') : v.toFixed(2).replace('.', ',');
+}
+const valor = (s, [k, , p90], por90) => s?.[k] == null ? null : p90 && por90 ? (s.minutesPlayed ? s[k] * 90 / s.minutesPlayed : null) : s[k];
+
+function fichaTopo(f, lado) {
+  const top = `<div class="f-top"><span class="ph">${img(f.p.foto, f.p.nome)}</span>
+    <div class="info"><b>${esc(f.p.nome)}</b><small>${esc(f.p.clube || '')}${f.p.pos ? ' · ' + esc(f.p.pos) : ''}</small></div></div>`;
+  if (f.carregando) return top + '<p class="vazio">Buscando no Sofascore…</p>';
+  if (f.erro) return top + `<p class="vazio">Não deu para carregar o scout (${esc(f.erro)})</p>`;
+  return top + `
+    <label class="f-sel">Jogador no Sofascore<select data-f="${lado}" data-campo="id">${f.cands.map(c =>
+      `<option value="${c.id}"${c.id === f.id ? ' selected' : ''}>${esc(c.name)} · ${esc(c.team?.name || '?')}</option>`).join('')}</select></label>
+    <label class="f-sel">Competição<select data-f="${lado}" data-campo="t"${f.temporadas.length ? '' : ' disabled'}>${f.temporadas.map((t, i) =>
+      `<option value="${i}"${i === f.t ? ' selected' : ''}>${esc(t.nome)}</option>`).join('') || '<option>Sem estatísticas</option>'}</select></label>`;
+}
+
+// ---- Scout dialog ----
+let fScout = null;
+function renderScout() {
+  const f = fScout, dlg = $('scoutDlg');
+  let corpo = '';
+  if (f && !f.carregando && !f.erro) {
+    corpo += '<h3 class="f-h">Atributos</h3>' + (f.atr ? `<div class="atr">${Object.keys(ATR).filter(k => f.atr[k] != null).map(k =>
+      `<span>${ATR[k]}</span><span class="bar"><i style="width:${f.atr[k]}%"></i>${f.media?.[k] != null ? `<u style="left:${f.media[k]}%" title="Média da posição: ${f.media[k]}"></u>` : ''}</span><b>${f.atr[k]}</b>`).join('')}</div>
+      <p class="nota">0 a 100, últimos 12 meses. O traço branco é a média da posição.</p>` : '<p class="nota">Sem atributos para este jogador.</p>');
+    corpo += '<h3 class="f-h">Estatísticas</h3>';
+    if (f.stats === undefined) corpo += '<p class="nota">Carregando…</p>';
+    else if (!f.stats) corpo += '<p class="nota">Sem estatísticas nesta competição.</p>';
+    else corpo += `<table class="st-tab"><thead><tr><th>Estatística</th><th>Total</th><th>Por 90 min</th></tr></thead><tbody>${STATS
+      .filter(s => f.stats[s[0]] != null && mostra(s, goleiro(f), goleiro(f)))
+      .map(s => `<tr><td>${s[1]}</td><td>${fmt(valor(f.stats, s, false), s[4])}</td><td>${s[2] ? fmt(valor(f.stats, s, true)) : ''}</td></tr>`).join('')}</tbody></table>`;
+  }
+  dlg.innerHTML = `<div class="dlg">${f ? fichaTopo(f, 'scout') : ''}${corpo}
+    <div class="dlg-acoes"><button type="button" class="btn" data-acao="comparar"${f && !f.erro && !f.carregando ? '' : ' disabled'}>Comparar com…</button>
+    <button type="button" class="btn primary" data-acao="fechar">Fechar</button></div></div>`;
+}
+async function abrirScout(p) {
+  if (!p) return;
+  fScout = { p, carregando: true };
+  renderScout();
+  $('scoutDlg').showModal();
+  const f = await carregarFicha(p);
+  if (fScout?.p !== p) return; // closed or switched meanwhile
+  fScout = f;
+  renderScout();
+}
+$('scoutDlg').addEventListener('change', e => { const s = e.target.closest('[data-campo]'); if (s) mudarFicha(fScout, s.dataset.campo, s.value, renderScout); });
+$('scoutDlg').addEventListener('click', e => {
+  const a = e.target.closest('[data-acao]')?.dataset.acao;
+  if (a === 'fechar' || e.target === $('scoutDlg')) $('scoutDlg').close();
+  if (a === 'comparar') { cmp.A = fScout; cmp.B = null; $('scoutDlg').close(); verTela('comparar'); }
+});
+
+// ---- Compare view ----
+const cmp = { A: null, B: null, res: { A: [], B: [] } };
+let cmpTimer = {}, cmpCtrl = {};
+
+function doElenco() {
+  const todos = [...st.slots.flatMap(s => [s.t, s.r]), ...Object.values(st.listas).flat()].filter(Boolean);
+  return todos.filter((p, i) => todos.findIndex(x => x.id === p.id) === i);
+}
+function renderLado(L) {
+  const el = document.querySelector(`.lado[data-lado="${L}"]`), f = cmp[L];
+  if (f) {
+    el.innerHTML = `<h2>Jogador ${L}</h2>${fichaTopo(f, L)}<button type="button" class="btn mini-b" data-trocar="${L}">Trocar jogador</button>`;
+    return;
+  }
+  const meus = doElenco();
+  el.innerHTML = `<h2>Jogador ${L}</h2>
+    ${meus.length ? `<label class="f-sel">Do seu elenco<select data-meu="${L}"><option value="">Escolher…</option>${meus.map(p => `<option value="${esc(p.id)}">${esc(p.nome)}</option>`).join('')}</select></label>` : ''}
+    <input type="search" data-busca="${L}" autocomplete="off" placeholder="Ou busque qualquer jogador">
+    <div class="lista">${cmp.res[L].map((p, k) => `<button type="button" class="jog" data-pick="${L}" data-k="${k}">
+      <span class="ph">${img(p.foto, p.nome)}</span>
+      <span class="info"><b>${esc(p.nome)}</b><span class="meta"><span class="chip">${esc(p.pos || '?')}</span>${p.escudo ? img(p.escudo) : ''}<span>${esc(p.clube)}</span></span></span>
+      <span class="preco">${p.valor ? euro(p.valor) : '–'}</span></button>`).join('')}</div>`;
+}
+function linhaCmp(lbl, a, b, fa, fb, menor, max) {
+  max = max || Math.max(a ?? 0, b ?? 0) || 1;
+  const w = a == null || b == null || a === b ? '' : (a > b) !== !!menor ? 'A' : 'B';
+  return `<div class="c-row"><span class="c-v ${w === 'A' ? 'win' : ''}">${fa}</span>
+    <span class="c-bar a ${w === 'A' ? 'ganha' : ''}"><i style="width:${(a ?? 0) / max * 100}%"></i></span>
+    <span class="c-lbl">${lbl}</span>
+    <span class="c-bar b ${w === 'B' ? 'ganha' : ''}"><i style="width:${(b ?? 0) / max * 100}%"></i></span>
+    <span class="c-v ${w === 'B' ? 'win' : ''}">${fb}</span></div>`;
+}
+function renderTabela() {
+  const { A, B } = cmp, el = $('cmpTabela');
+  const pronto = f => f && !f.carregando && !f.erro;
+  if (!pronto(A) || !pronto(B)) { el.innerHTML = '<p class="vazio">Escolha os dois jogadores para comparar.</p>'; return; }
+  const p90 = $('p90').checked;
+  const atrs = Object.keys(ATR).filter(k => A.atr?.[k] != null || B.atr?.[k] != null);
+  let h = '';
+  if (atrs.length) h += '<div class="c-sec">Atributos</div>' + atrs.map(k => linhaCmp(ATR[k], A.atr?.[k], B.atr?.[k], A.atr?.[k] ?? '–', B.atr?.[k] ?? '–', 0, 100)).join('');
+  if (A.stats === undefined || B.stats === undefined) h += '<p class="vazio">Carregando estatísticas…</p>';
+  else if (!A.stats && !B.stats) h += '<p class="vazio">Sem estatísticas nas competições escolhidas.</p>';
+  else h += `<div class="c-sec">Estatísticas${p90 ? ' por 90 min' : ''}</div>` + STATS
+    .filter(s => (A.stats?.[s[0]] != null || B.stats?.[s[0]] != null) && mostra(s, goleiro(A) || goleiro(B), goleiro(A) && goleiro(B)))
+    .map(s => { const a = valor(A.stats, s, p90), b = valor(B.stats, s, p90); return linhaCmp(s[1], a, b, fmt(a, s[4]), fmt(b, s[4]), s[3]); }).join('');
+  el.innerHTML = h;
+}
+function renderCmp() { renderLado('A'); renderLado('B'); renderTabela(); }
+// redraw one side only, so typing on the other side is not wiped
+const redesenhaLado = L => () => { renderLado(L); renderTabela(); };
+
+async function escolherCmp(L, p) {
+  cmp[L] = { p, carregando: true };
+  cmp.res[L] = [];
+  redesenhaLado(L)();
+  const f = await carregarFicha(p);
+  if (cmp[L]?.p === p) { cmp[L] = f; redesenhaLado(L)(); }
+}
+async function buscarCmp(L, q) {
+  cmpCtrl[L]?.abort();
+  if (q.length < 2) { cmp.res[L] = []; return renderLadoLista(L); }
+  cmpCtrl[L] = new AbortController();
+  try {
+    const d = await fetch('/api/busca?q=' + encodeURIComponent(q), { signal: cmpCtrl[L].signal }).then(r => r.json());
+    if (d.erro) throw new Error(d.erro);
+    cmp.res[L] = d;
+  } catch (e) { if (e.name === 'AbortError') return; cmp.res[L] = []; toast('Não deu para buscar: ' + e.message); }
+  renderLadoLista(L);
+}
+// redraw only the result list so the search box keeps focus
+function renderLadoLista(L) {
+  const el = document.querySelector(`.lado[data-lado="${L}"]`), q = el.querySelector('[data-busca]').value;
+  renderLado(L);
+  const i = el.querySelector('[data-busca]');
+  i.value = q; i.focus();
+}
+
+$('vComparar').addEventListener('input', e => {
+  const L = e.target.dataset.busca;
+  if (!L) return;
+  clearTimeout(cmpTimer[L]);
+  cmpTimer[L] = setTimeout(() => buscarCmp(L, e.target.value.trim()), 350);
+});
+$('vComparar').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.meu) { const p = doElenco().find(x => x.id === t.value); if (p) escolherCmp(t.dataset.meu, p); }
+  if (t.dataset.campo) mudarFicha(cmp[t.dataset.f], t.dataset.campo, t.value, redesenhaLado(t.dataset.f));
+  if (t.id === 'p90') renderTabela();
+});
+$('vComparar').addEventListener('click', e => {
+  const pick = e.target.closest('[data-pick]'), troca = e.target.closest('[data-trocar]');
+  if (pick) escolherCmp(pick.dataset.pick, cmp.res[pick.dataset.pick][+pick.dataset.k]);
+  if (troca) { cmp[troca.dataset.trocar] = null; redesenhaLado(troca.dataset.trocar)(); }
+});
+
+function verTela(v) {
+  $('vElenco').hidden = v !== 'elenco';
+  $('vComparar').hidden = v !== 'comparar';
+  document.querySelectorAll('#views [data-view]').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === v));
+  if (v === 'comparar') renderCmp();
+}
+$('views').onclick = e => { const b = e.target.closest('[data-view]'); if (b) verTela(b.dataset.view); };
 
 tudo();
 </script>

@@ -79,6 +79,25 @@ async function tm(url) {
   return r.text();
 }
 
+// Sofascore 403s Node's TLS fingerprint, so requests go through a headless Chromium tab parked on its origin
+const SOFA = 'https://www.sofascore.com';
+const SOFA_OK = /^\/(search\/all\?q=[^&]+&page=0|player\/\d+(\/attribute-overviews|\/statistics\/seasons|\/unique-tournament\/\d+\/season\/\d+\/statistics\/overall)?)$/;
+let sofaP;
+function sofaPage() {
+  return sofaP ??= (async () => {
+    const { chromium } = require('playwright'); // lazy: the Transfermarkt part runs without it
+    const b = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
+    b.on('disconnected', () => { sofaP = null; });
+    const p = await b.newPage();
+    await p.goto(SOFA + '/robots.txt');
+    return p;
+  })().catch(e => { sofaP = null; throw e; });
+}
+async function sofa(path) {
+  const p = await sofaPage();
+  return p.evaluate(async u => { const r = await fetch(u); return { s: r.status, j: r.ok ? await r.json() : null }; }, '/api/v1' + path);
+}
+
 function json(res, data, code = 200) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(data));
@@ -102,6 +121,22 @@ const server = http.createServer(async (req, res) => {
     try {
       if (!cache.has('@vasco')) cache.set('@vasco', parseElenco(await tm('https://www.transfermarkt.com.br/cr-vasco-da-gama/kader/verein/978')));
       return json(res, cache.get('@vasco'));
+    } catch (e) {
+      return json(res, { erro: e.message }, 502);
+    }
+  }
+  if (u.pathname.startsWith('/api/sofa/')) {
+    const path = u.pathname.slice(9) + u.search;
+    if (!SOFA_OK.test(path)) return json(res, { erro: 'Caminho não permitido' }, 400);
+    try {
+      if (cache.size > 500) cache.clear();
+      if (!cache.has(path)) {
+        const r = await sofa(path);
+        if (r.s === 404) return json(res, null);
+        if (!r.j) throw new Error('Sofascore respondeu ' + r.s);
+        cache.set(path, r.j);
+      }
+      return json(res, cache.get(path));
     } catch (e) {
       return json(res, { erro: e.message }, 502);
     }
