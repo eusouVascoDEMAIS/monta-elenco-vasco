@@ -4,5 +4,7 @@ services:
     runtime: docker
     plan: free
     envVars:
-      - key: SOFA_PROXY
+      - key: SOFA_RELAY
+        sync: false
+      - key: RELAY_KEY
         sync: false

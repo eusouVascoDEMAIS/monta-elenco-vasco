@@ -87,10 +87,7 @@ function sofaPage() {
   return sofaP ??= (async () => {
     const { chromium } = require('playwright'); // lazy: the Transfermarkt part runs without it
     // full Chromium (new headless) looks more like a real browser than the default headless shell
-    // Sofascore's API 403s datacenter IPs: when hosted, SOFA_PROXY=http://user:pass@host:port routes it through a residential proxy
-    const px = process.env.SOFA_PROXY && new URL(process.env.SOFA_PROXY);
-    const proxy = px ? { server: `${px.protocol}//${px.host}`, username: decodeURIComponent(px.username), password: decodeURIComponent(px.password) } : undefined;
-    const b = await chromium.launch({ channel: 'chromium', args: ['--disable-dev-shm-usage'], proxy });
+    const b = await chromium.launch({ channel: 'chromium', args: ['--disable-dev-shm-usage'] });
     b.on('disconnected', () => { sofaP = null; });
     const p = await b.newPage();
     p.base = (await p.goto(SOFA + '/robots.txt')).status();
@@ -100,6 +97,19 @@ function sofaPage() {
 async function sofa(path) {
   const p = await sofaPage();
   return p.evaluate(async u => { const r = await fetch(u); return { s: r.status, j: r.ok ? await r.json() : null }; }, '/api/v1' + path);
+}
+
+// Sofascore's API also 403s datacenter IPs, so the hosted copy forwards to the owner's PC (home IP) through ngrok
+const RELAY = process.env.SOFA_RELAY, RELAY_KEY = process.env.RELAY_KEY || '';
+const FORA = 'Scout fora do ar: o PC que consulta o Sofascore está desligado. Tente mais tarde.';
+async function relay(path) {
+  const r = await fetch(RELAY + '/api/sofa' + path, {
+    headers: { 'ngrok-skip-browser-warning': '1', 'x-relay-key': RELAY_KEY },
+    signal: AbortSignal.timeout(20000),
+  }).catch(() => { throw new Error(FORA); });
+  const j = await r.json().catch(() => { throw new Error(FORA); }); // ngrok answers an HTML page when the tunnel is down
+  if (!r.ok) throw new Error(j?.erro || FORA);
+  return { s: j === null ? 404 : 200, j };
 }
 
 function json(res, data, code = 200) {
@@ -132,10 +142,12 @@ const server = http.createServer(async (req, res) => {
   if (u.pathname.startsWith('/api/sofa/')) {
     const path = u.pathname.slice(9) + u.search;
     if (!SOFA_OK.test(path)) return json(res, { erro: 'Caminho não permitido' }, 400);
+    // on the PC (no RELAY), requests arriving through the tunnel must carry the shared key
+    if (!RELAY && req.headers['x-forwarded-for'] && (!RELAY_KEY || req.headers['x-relay-key'] !== RELAY_KEY)) return json(res, { erro: 'Chave da ponte inválida' }, 403);
     try {
       if (cache.size > 500) cache.clear();
       if (!cache.has(path)) {
-        const r = await sofa(path);
+        const r = RELAY ? await relay(path) : await sofa(path);
         if (r.s === 404) return json(res, null);
         if (!r.j) throw new Error(`Sofascore respondeu ${r.s} (página base ${(await sofaPage()).base})`);
         cache.set(path, r.j);

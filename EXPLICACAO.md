@@ -19,7 +19,7 @@ Repositório: https://github.com/eusouVascoDEMAIS/monta-elenco-vasco
 1. O repositório precisa ter `server.js`, `index.html`, `package.json`, `Dockerfile`, `render.yaml` e `.gitignore`.
 2. Em render.com, escolha **New → Blueprint** (link direto: `dashboard.render.com/select-repo?type=blueprint`) e aponte para o repositório. O `render.yaml` define um serviço web free com `runtime: docker`. O `Dockerfile` parte da imagem oficial do Playwright (já traz o Chromium e as bibliotecas de sistema) e define `HOST=0.0.0.0`. A porta vem do `PORT` que o Render injeta.
 3. O link fica `https://monta-elenco-vasco.onrender.com` (ou parecido). No plano free o serviço dorme após 15 min sem acesso e o primeiro acesso depois disso leva uns 30 a 50 s.
-4. Para o Scout funcionar hospedado, preencha `SOFA_PROXY` em **Environment** no Render (veja "IP de datacenter" abaixo).
+4. Para o Scout funcionar hospedado, preencha `SOFA_RELAY` e `RELAY_KEY` em **Environment** no Render e deixe o `ponte.cmd` rodando no PC (veja "IP de datacenter" abaixo).
 5. O deploy automático a cada commit não disparou neste serviço. Depois de um commit, use **Manual Deploy → Deploy latest commit**.
 6. A versão do `playwright` no `package.json` (1.61.1) precisa ser a mesma da tag da imagem no `Dockerfile` (`v1.61.1-noble`). Se mudar uma, mude a outra.
 
@@ -33,7 +33,9 @@ Cada amigo tem o próprio elenco, salvo no `localStorage` do navegador dele. Nad
 | `index.html` | A página inteira: campo, mesa de contratações, totais e exportação. |
 | `package.json` | `npm start`, versão mínima do Node e a dependência `playwright`. |
 | `Dockerfile` | Imagem para o Render, baseada na imagem oficial do Playwright. |
-| `render.yaml` | Blueprint do Render (serviço web free, Docker). |
+| `render.yaml` | Blueprint do Render (serviço web free, Docker). Declara `SOFA_RELAY` e `RELAY_KEY`, preenchidas no painel. |
+| `ponte.cmd` | Liga a ponte do Scout no PC: servidor local + túnel ngrok. Fica fora do Git. |
+| `relay-key.txt` | Chave secreta da ponte. Fica fora do Git. |
 
 ## Como funciona
 
@@ -52,7 +54,12 @@ Cada amigo tem o próprio elenco, salvo no `localStorage` do navegador dele. Nad
 - `sofaPage()` guarda a promessa da aba, então chamadas simultâneas reaproveitam o mesmo navegador. Se o Chromium cair, o evento `disconnected` zera a promessa e o próximo pedido abre outro.
 - `SOFA_OK` é uma lista branca do que pode ser repassado: busca (`search/all`), dados do jogador (`player/{id}`), atributos (`attribute-overviews`), lista de temporadas (`statistics/seasons`) e estatísticas de uma temporada (`unique-tournament/{t}/season/{s}/statistics/overall`). Qualquer outro caminho volta 400.
 - 404 do Sofascore (ex.: jogador sem atributos) vira `null` com status 200, para a página tratar como "sem dados". As respostas usam o mesmo cache em memória da busca.
-- **IP de datacenter**: no Render, a página base abre (200), mas a API responde 403, porque o Sofascore bloqueia IPs de datacenter na API. A solução é um proxy residencial. Com a variável de ambiente `SOFA_PROXY=http://usuario:senha@host:porta`, o Chromium sai por esse proxy. Sem ela, conecta direto, o que funciona em casa. No Render, a variável fica em **Environment** (o `render.yaml` a declara com `sync: false`, ou seja, o valor é preenchido no painel e não vai para o repositório).
+- **IP de datacenter**: no Render, a página base abre (200), mas a API responde 403, porque o Sofascore bloqueia IPs de datacenter na API. Proxy residencial resolveria, mas é pago. A solução adotada é uma **ponte pelo PC do dono**, que tem IP residencial:
+  - No Render, `SOFA_RELAY=https://<dominio>.ngrok-free.app` faz o `/api/sofa/...` ser repassado para o PC (`relay()`) em vez de abrir o Chromium. O cabeçalho `ngrok-skip-browser-warning` pula a página de aviso do ngrok free.
+  - No PC, o `ponte.cmd` sobe o `server.js` (sem `SOFA_RELAY`, ou seja, com o Chromium) e o `ngrok http --url=<dominio> 3015`.
+  - **Chave**: o ngrok expõe o servidor do PC na internet. Por isso, no PC, toda requisição que chega pelo túnel (tem `x-forwarded-for`) precisa trazer `x-relay-key` igual ao `RELAY_KEY`. Sem a chave, volta 403. O Render manda a mesma chave. Ela fica em `relay-key.txt` (fora do Git) e é colada em `RELAY_KEY` no Render. A checagem não roda no Render, porque lá o proxy do próprio Render também põe `x-forwarded-for` em tudo.
+  - PC desligado ou túnel fora: o ngrok responde uma página HTML ou a conexão falha. Nos dois casos a ficha mostra "Scout fora do ar: o PC que consulta o Sofascore está desligado". O resto do site continua funcionando.
+  - O cache do Render guarda o que já foi consultado, então jogadores já vistos continuam abrindo com o PC desligado, até o serviço reiniciar.
 - As fotos do Sofascore (`img.sofascore.com`) não carregam em `<img>` de outro site. Por isso as fotos continuam vindo do Transfermarkt.
 
 ### Página (`index.html`)
